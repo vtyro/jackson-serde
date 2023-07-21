@@ -131,15 +131,18 @@ class JacksonSerdeTest {
     }
 
     @Test
-    void testSerdeImportErr4() {
+    void testSerdeableFieldErr4() {
         var model = new Model4();
         var subModel = new ModelImpl41();
         subModel.setField1("test1");
         model.setField(subModel);
         var json = new String(code.encode(model), StandardCharsets.UTF_8);
         System.out.println(json);
+        // expected {"field": {"model41": {"field1":"test1"}}}
         Assertions.assertTrue(json.contains("\"model41\""));
         // Error decoding property [InterFace4 field] of type [class com.example.err4.Model4]: Unable to deserialize type [InterFace4 field]: No default constructor exists
+        // OR
+        // No bean introspection available for type [interface com.example.err4.InterFace4]. Ensure the class is annotated with io.micronaut.core.annotation.Introspected
         var res = code.decode(Model4.class, json);
         Assertions.assertInstanceOf(Model4.class, res);
         Assertions.assertInstanceOf(ModelImpl41.class, ((Model4)res).getField());
