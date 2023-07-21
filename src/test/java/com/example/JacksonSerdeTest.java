@@ -9,6 +9,8 @@ import com.example.err2.ModelImpl22;
 import com.example.err3.Abstract3;
 import com.example.err3.ModelImpl31;
 import com.example.err3.ModelImpl32;
+import com.example.err4.Model4;
+import com.example.err4.ModelImpl41;
 import io.micronaut.json.codec.JsonMediaTypeCodec;
 import io.micronaut.runtime.EmbeddedApplication;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -126,5 +128,20 @@ class JacksonSerdeTest {
         Assertions.assertEquals(model.getField(), field);
         // expected: <test2> but was: <null>
         Assertions.assertEquals(subModel.getField2(), field1);
+    }
+
+    @Test
+    void testSerdeImportErr4() {
+        var model = new Model4();
+        var subModel = new ModelImpl41();
+        subModel.setField1("test1");
+        model.setField(subModel);
+        var json = new String(code.encode(model), StandardCharsets.UTF_8);
+        System.out.println(json);
+        Assertions.assertTrue(json.contains("\"model41\""));
+        // Error decoding property [InterFace4 field] of type [class com.example.err4.Model4]: Unable to deserialize type [InterFace4 field]: No default constructor exists
+        var res = code.decode(Model4.class, json);
+        Assertions.assertInstanceOf(Model4.class, res);
+        Assertions.assertInstanceOf(ModelImpl41.class, ((Model4)res).getField());
     }
 }
